@@ -20,4 +20,5 @@ jobs:
           java-version: '21'
 
       - name: Run tests
-        run: mvn -ntp -B recipeshare/pom.xml
+        run: mvn -ntp -B test
+        working-directory: recipeshare
