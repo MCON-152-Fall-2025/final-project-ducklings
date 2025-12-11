@@ -121,4 +121,18 @@ public class RecipeController {
             return ResponseEntity.internalServerError().build();
         }
     }
+
+
+    /**
+     * Export a recipe by id. 200 OK or 404 Not Found.
+     * /export?format=text|markdown|html
+     */
+    @ExportMapping
+    public ResponseEntity<Recipe> exportRecipeById(@PathVariable long id) {
+        logger.info("Received request to export recipe by ID: {}", id);
+        //need to let it take parameters
+        return recipeService.exportRecipeById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
 }
