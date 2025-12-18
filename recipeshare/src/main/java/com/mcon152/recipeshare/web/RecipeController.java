@@ -2,7 +2,7 @@ package com.mcon152.recipeshare.web;
 
 import com.mcon152.recipeshare.domain.Recipe;
 import com.mcon152.recipeshare.domain.RecipeRegistry;
-import com.mcon152.recipeshare.service.RecipeService;
+import com.mcon152.recipeshare.service.*;
 import org.slf4j.Logger;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -127,12 +127,25 @@ public class RecipeController {
      * Export a recipe by id. 200 OK or 404 Not Found.
      * /export?format=text|markdown|html
      */
-    @ExportMapping
-    public ResponseEntity<Recipe> exportRecipeById(@PathVariable long id) {
+    @GetMapping("{id}/export")
+    public ResponseEntity<String> exportRecipeById(@PathVariable long id, String format) {
         logger.info("Received request to export recipe by ID: {}", id);
         //need to let it take parameters
-        return recipeService.exportRecipeById(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        ResponseEntity<Recipe> recipe = getRecipeById(id);
+
+
+        switch (format.toLowerCase()) {
+            case "markdown":
+                AbstractRecipeExporter exporter = new MarkdownRecipeExporter();
+                break;
+            case "html":
+                AbstractRecipeExporter exporter = new HtmlRecipeExporter();
+                break;
+            default:
+                AbstractRecipeExporter exporter = new PlainTextRecipeExporter();
+        }
+
+        return ResponseEntity.ok(exporter.export(recipe));
+
     }
 }
