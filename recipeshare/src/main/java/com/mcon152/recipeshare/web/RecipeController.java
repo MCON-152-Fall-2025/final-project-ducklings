@@ -136,13 +136,13 @@ public class RecipeController {
 
         switch (format.toLowerCase()) {
             case "markdown":
-                AbstractRecipeExporter exporter = new MarkdownRecipeExporter();
+                AbstractRecipeExporter mdExporter = new MarkdownRecipeExporter();
                 break;
             case "html":
-                AbstractRecipeExporter exporter = new HtmlRecipeExporter();
+                AbstractRecipeExporter htmlExporter = new HtmlRecipeExporter();
                 break;
             default:
-                AbstractRecipeExporter exporter = new PlainTextRecipeExporter();
+                AbstractRecipeExporter txtExporter = new PlainTextRecipeExporter();
         }
 
         return ResponseEntity.ok(exporter.export(recipe));

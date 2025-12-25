@@ -1,6 +1,6 @@
 package com.mcon152.recipeshare.service;
 
-class PlainTextRecipeExporter extends AbstractMethodError {
+public class PlainTextRecipeExporter extends AbstractRecipeExporter {
     // Implementing abstract methods
     @Override
     void formatHeader() {
@@ -9,11 +9,11 @@ class PlainTextRecipeExporter extends AbstractMethodError {
 
     @Override
     void formatIngredients() {
-        System.out.println("Adding lemon");
+        System.out.println("Adding sugar");
     }
 
     @Override
-    void formatInstructionss() {
-        System.out.println("Adding lemon");
+    void formatInstructions() {
+        System.out.println("Stirring");
     }
 }
