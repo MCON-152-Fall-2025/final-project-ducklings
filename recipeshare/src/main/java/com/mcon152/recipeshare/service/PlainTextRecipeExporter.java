@@ -1,19 +1,21 @@
 package com.mcon152.recipeshare.service;
 
+import com.mcon152.recipeshare.domain.Recipe;
+
 public class PlainTextRecipeExporter extends AbstractRecipeExporter {
     // Implementing abstract methods
     @Override
-    void formatHeader() {
-        System.out.println("Steeping the tea");
+    void formatHeader(Recipe recipe) {
+        formattedRecipe.append("Recipe in Plain Text Format\n");
     }
 
     @Override
-    void formatIngredients() {
-        System.out.println("Adding sugar");
+    void formatIngredients(Recipe recipe) {
+        formattedRecipe.append("Plain Text \n");
     }
 
     @Override
-    void formatInstructions() {
-        System.out.println("Stirring");
+    void formatInstructions(Recipe recipe) {
+        formattedRecipe.append("The End");
     }
 }

@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 
 @RestController
@@ -127,25 +128,23 @@ public class RecipeController {
      * Export a recipe by id. 200 OK or 404 Not Found.
      * /export?format=text|markdown|html
      */
-    @GetMapping("{id}/export")
+    @GetMapping("{id}/export/{format}")
     public ResponseEntity<String> exportRecipeById(@PathVariable long id, String format) {
-        logger.info("Received request to export recipe by ID: {}", id);
-        //need to let it take parameters
-        ResponseEntity<Recipe> recipe = getRecipeById(id);
+        logger.info("Received request to export recipe id {} in {}", id, format);
 
-
-        switch (format.toLowerCase()) {
-            case "markdown":
-                AbstractRecipeExporter mdExporter = new MarkdownRecipeExporter();
-                break;
-            case "html":
-                AbstractRecipeExporter htmlExporter = new HtmlRecipeExporter();
-                break;
-            default:
-                AbstractRecipeExporter txtExporter = new PlainTextRecipeExporter();
+        Optional<Recipe> recipe = recipeService.getRecipeById(id);
+        if (recipe.isEmpty()) {
+            logger.warn("Recipe not found for export - id={}", id);
+            return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(exporter.export(recipe));
+        AbstractRecipeExporter exporter = switch (format.toLowerCase()) {
+            case "markdown" -> new MarkdownRecipeExporter();
+            case "html" -> new HtmlRecipeExporter();
+            default -> new PlainTextRecipeExporter();
+        };
+
+        return ResponseEntity.ok(exporter.export(recipe.get()));
 
     }
 }
