@@ -1,8 +1,10 @@
 package com.mcon152.recipeshare.service;
 
+import java.util.List;
 import com.mcon152.recipeshare.domain.Recipe;
 
 public class PlainTextRecipeExporter extends AbstractRecipeExporter {
+
     // Implementing abstract methods
     @Override
     void formatHeader(Recipe recipe) {
