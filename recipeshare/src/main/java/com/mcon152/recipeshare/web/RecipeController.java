@@ -3,6 +3,7 @@ package com.mcon152.recipeshare.web;
 import com.mcon152.recipeshare.domain.Recipe;
 import com.mcon152.recipeshare.domain.RecipeRegistry;
 import com.mcon152.recipeshare.service.*;
+import com.mcon152.recipeshare.service.export.*;
 import org.slf4j.Logger;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,7 +35,6 @@ public class RecipeController {
         try {
             Recipe toSave = RecipeRegistry.createFromRequest(recipeRequest);
             Recipe saved = recipeService.addRecipe(toSave);
-
             URI location = ServletUriComponentsBuilder
                     .fromCurrentRequest()           // /api/recipes
                     .path("/{id}")                  // /{id}
@@ -102,7 +102,6 @@ public class RecipeController {
             logger.error("Error updating recipe with ID: {}", id, e);
             return ResponseEntity.internalServerError().build();
         }
-
     }
 
     /**
@@ -129,7 +128,7 @@ public class RecipeController {
      * /export?format=text|markdown|html
      */
     @GetMapping("{id}/export/{format}")
-    public ResponseEntity<String> exportRecipeById(@PathVariable long id, String format) {
+    public ResponseEntity<String> exportRecipeById(@PathVariable long id, @PathVariable String format) {
         logger.info("Received request to export recipe id {} in {}", id, format);
 
         Optional<Recipe> recipe = recipeService.getRecipeById(id);
@@ -145,6 +144,5 @@ public class RecipeController {
         };
 
         return ResponseEntity.ok(exporter.export(recipe.get()));
-
     }
 }

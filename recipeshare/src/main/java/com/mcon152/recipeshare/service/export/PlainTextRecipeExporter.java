@@ -1,6 +1,4 @@
-package com.mcon152.recipeshare.service;
-
-import java.util.List;
+package com.mcon152.recipeshare.service.export;
 import com.mcon152.recipeshare.domain.Recipe;
 
 public class PlainTextRecipeExporter extends AbstractRecipeExporter {
