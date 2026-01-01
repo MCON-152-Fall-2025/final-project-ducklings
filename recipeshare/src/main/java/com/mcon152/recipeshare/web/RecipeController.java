@@ -127,7 +127,7 @@ public class RecipeController {
      * Export a recipe by id. 200 OK or 404 Not Found.
      * /export?format=text|markdown|html
      */
-    @GetMapping("{id}/export/{format}")
+    @GetMapping("/{id}/export/{format}")
     public ResponseEntity<String> exportRecipeById(@PathVariable long id, @PathVariable String format) {
         logger.info("Received request to export recipe id {} in {}", id, format);
 

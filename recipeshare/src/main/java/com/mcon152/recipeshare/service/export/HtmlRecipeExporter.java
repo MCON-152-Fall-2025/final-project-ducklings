@@ -1,6 +1,7 @@
 package com.mcon152.recipeshare.service.export;
 
 import com.mcon152.recipeshare.domain.Recipe;
+import com.mcon152.recipeshare.domain.Tag;
 
 public class HtmlRecipeExporter extends AbstractRecipeExporter {
 
@@ -18,9 +19,15 @@ public class HtmlRecipeExporter extends AbstractRecipeExporter {
                 """);
         formattedRecipe.append("<h2>").append(recipe.getTitle()).append("</h2>");
         formattedRecipe.append("<h3>").append(recipe.getDescription()).append("</h3>");
-        if (recipe.getServings() != null) formattedRecipe.append("<h4>").append(recipe.getServings()).append("</h4>");
-        if (recipe.getAuthor() != null) formattedRecipe.append("<h4>").append(recipe.getAuthor()).append("</h4>");
-        if (recipe.getTags() != null) formattedRecipe.append("<h5>").append(recipe.getTags()).append("</h5>");
+        if (recipe.getServings() != null)
+            formattedRecipe.append("<h4>Servings: ").append(recipe.getServings()).append("</h4>");
+        if (recipe.getAuthor() != null)
+            formattedRecipe.append("<h4>Author: ").append(recipe.getAuthor().getDisplayName()).append("</h4>");
+        if (recipe.getTags() != null) {
+            formattedRecipe.append("<h5>Tags: ");
+            for (Tag tag : recipe.getTags()) formattedRecipe.append(tag.getName()).append(" ");
+            formattedRecipe.append("</h5>");
+        }
     }
 
     @Override
