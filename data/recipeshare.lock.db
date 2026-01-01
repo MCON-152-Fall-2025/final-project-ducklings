@@ -1,0 +1,6 @@
+#FileLock
+#Thu Jan 01 16:45:27 EST 2026
+hostName=Thingy
+id=19b7b85d65d0ff2bce2bd410c9892ef60d6a32f8ed1
+method=file
+server=10.16.240.134\:63794
