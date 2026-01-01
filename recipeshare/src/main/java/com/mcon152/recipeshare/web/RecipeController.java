@@ -140,6 +140,7 @@ public class RecipeController {
         AbstractRecipeExporter exporter = switch (format.toLowerCase()) {
             case "markdown" -> new MarkdownRecipeExporter();
             case "html" -> new HtmlRecipeExporter();
+            case "plaintext" -> new PlainTextRecipeExporter();
             default -> new PlainTextRecipeExporter();
         };
 
