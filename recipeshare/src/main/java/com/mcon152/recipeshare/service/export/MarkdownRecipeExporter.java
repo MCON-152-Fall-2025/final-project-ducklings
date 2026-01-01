@@ -1,5 +1,7 @@
 package com.mcon152.recipeshare.service.export;
 import com.mcon152.recipeshare.domain.Recipe;
+import com.mcon152.recipeshare.domain.Tag;
+
 import java.util.List;
 
 public class MarkdownRecipeExporter extends AbstractRecipeExporter {
@@ -16,11 +18,17 @@ public class MarkdownRecipeExporter extends AbstractRecipeExporter {
         if (recipe.getDescription() != null && !recipe.getDescription().isEmpty()) {
             formattedRecipe.append(recipe.getDescription()).append("\n\n");
         }
-
-        // Tags (optional)
-        if (recipe.getTags() != null && !recipe.getTags().isEmpty()) {
+        //Servings
+        if (recipe.getServings() != null)
+            formattedRecipe.append("\n## Servings\n\n").append(recipe.getServings()).append("\n");
+        //Author
+        if (recipe.getAuthor() != null)
+            formattedRecipe.append("\n## Author\n\n").append(recipe.getAuthor().getDisplayName()).append("\n");
+        //Tags
+        if (recipe.getTags() != null) {
             formattedRecipe.append("\n## Tags\n\n");
-            formattedRecipe.append(recipe.getTags()).append("\n");
+            for (Tag tag : recipe.getTags()) formattedRecipe.append(tag.getName()).append(" ");
+            formattedRecipe.append("\n");
         }
     }
 
