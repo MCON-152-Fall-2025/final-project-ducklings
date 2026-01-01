@@ -1,7 +1,6 @@
-package com.mcon152.recipeshare.service;
+package com.mcon152.recipeshare.service.export;
 
 import com.mcon152.recipeshare.domain.Recipe;
-import org.springframework.http.ResponseEntity;
 
 public abstract class AbstractRecipeExporter {
     //general exporting stuff
