@@ -20,7 +20,7 @@ public class MarkdownRecipeExporter extends AbstractRecipeExporter {
         // Tags (optional)
         if (recipe.getTags() != null && !recipe.getTags().isEmpty()) {
             formattedRecipe.append("\n## Tags\n\n");
-            formattedRecipe.append(String.join(", ", recipe.getTags())).append("\n");
+            formattedRecipe.append(recipe.getTags()).append("\n");
         }
     }
 
@@ -28,11 +28,9 @@ public class MarkdownRecipeExporter extends AbstractRecipeExporter {
     void formatIngredients(Recipe recipe) {
         // Ingredients
         formattedRecipe.append("## Ingredients\n\n");
-        List<String> ingredients = recipe.getIngredients();
-        if (ingredients != null && !ingredients.isEmpty()) {
-            for (String ing : ingredients) {
-                formattedRecipe.append("- ").append(ing).append("\n");
-            }
+        String ingredients = recipe.getIngredients();
+        if (ingredients != null ) {
+            formattedRecipe.append(ingredients).append("\n");
         } else {
             formattedRecipe.append("_No ingredients provided._\n");
         }
@@ -43,11 +41,10 @@ public class MarkdownRecipeExporter extends AbstractRecipeExporter {
     void formatInstructions(Recipe recipe) {
         // Instructions
         formattedRecipe.append("## Instructions\n\n");
-        List<String> instructions = recipe.getInstructions();
-        if (instructions != null && !instructions.isEmpty()) {
-            for (int i = 0; i < instructions.size(); i++) {
-                formattedRecipe.append(i + 1).append(". ").append(instructions.get(i)).append("\n");
-            }
+        String instructions = recipe.getInstructions();
+        if (instructions != null) {
+           formattedRecipe.append(instructions).append("\n");
+
         } else {
             formattedRecipe.append("_No instructions provided._\n");
         }
