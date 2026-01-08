@@ -11,47 +11,43 @@ public class MarkdownRecipeExporter extends AbstractRecipeExporter {
     void formatHeader(Recipe recipe) {
         // Header
         if (recipe.getTitle() != null && !recipe.getTitle().isEmpty()) {
-            formattedRecipe.append("# ").append(recipe.getTitle()).append("\n\n");
+            formattedRecipe.append("# ").append(recipe.getTitle()).append("\n");
         }
 
         // Description
         if (recipe.getDescription() != null && !recipe.getDescription().isEmpty()) {
-            formattedRecipe.append(recipe.getDescription()).append("\n\n");
+            formattedRecipe.append("### ").append(recipe.getDescription()).append("\n");
         }
         //Servings
         if (recipe.getServings() != null)
-            formattedRecipe.append("\n## Servings\n\n").append(recipe.getServings()).append("\n");
+            formattedRecipe.append("\n### Servings: ").append(recipe.getServings()).append("\n\n");
         //Author
         if (recipe.getAuthor() != null)
-            formattedRecipe.append("\n## Author\n\n").append(recipe.getAuthor().getDisplayName()).append("\n");
+            formattedRecipe.append("\n### Author: ").append(recipe.getAuthor().getDisplayName()).append("\n");
         //Tags
-        if (recipe.getTags() != null) {
-            formattedRecipe.append("\n## Tags\n\n");
+        if (recipe.getTags() != null && !recipe.getTags().isEmpty()) {
+            formattedRecipe.append("\n### Tags: ");
             for (Tag tag : recipe.getTags()) formattedRecipe.append(tag.getName()).append(" ");
-            formattedRecipe.append("\n");
+            formattedRecipe.append("\n\n");
         }
     }
 
     @Override
     void formatIngredients(Recipe recipe) {
         // Ingredients
-        formattedRecipe.append("## Ingredients\n\n");
-        String ingredients = recipe.getIngredients();
-        if (ingredients != null ) {
-            formattedRecipe.append(ingredients).append("\n");
-        } else {
-            formattedRecipe.append("_No ingredients provided._\n");
-        }
+        formattedRecipe.append("## Ingredients\n");
+        for (String ingredient : recipe.getIngredients().split(", "))
+            formattedRecipe.append("- ").append(ingredient.replace(", ", "\n")).append("\n");
         formattedRecipe.append("\n");
     }
 
     @Override
     void formatInstructions(Recipe recipe) {
         // Instructions
-        formattedRecipe.append("## Instructions\n\n");
+        formattedRecipe.append("## Instructions\n");
         String instructions = recipe.getInstructions();
         if (instructions != null) {
-           formattedRecipe.append(instructions).append("\n");
+           formattedRecipe.append(instructions.replace(" .\\.", "\n")).append("\n");
 
         } else {
             formattedRecipe.append("_No instructions provided._\n");
