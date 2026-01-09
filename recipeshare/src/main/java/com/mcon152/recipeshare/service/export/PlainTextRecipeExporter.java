@@ -13,7 +13,7 @@ public class PlainTextRecipeExporter extends AbstractRecipeExporter {
             formattedRecipe.append("Servings: ").append(recipe.getServings()).append("\n");
         if (recipe.getAuthor() != null)
             formattedRecipe.append("Author: ").append(recipe.getAuthor().getDisplayName()).append("\n");
-        if (recipe.getTags() != null) {
+        if (recipe.getTags() != null && !recipe.getTags().isEmpty()) {
             formattedRecipe.append("Tags: ");
             for (Tag tag : recipe.getTags())
                 formattedRecipe.append(tag.getName()).append(" ");
@@ -25,7 +25,7 @@ public class PlainTextRecipeExporter extends AbstractRecipeExporter {
     void formatIngredients(Recipe recipe) {
         formattedRecipe.append("\nIngredients:\n");
         for (String ingredient : recipe.getIngredients().split(", "))
-            formattedRecipe.append("- ").append(ingredient.replace(", ", "\n")).append("\n");
+            formattedRecipe.append("- ").append(ingredient).append("\n");
     }
 
     @Override

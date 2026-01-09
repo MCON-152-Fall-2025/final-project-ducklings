@@ -2,7 +2,6 @@ package com.mcon152.recipeshare.service.export;
 import com.mcon152.recipeshare.domain.Recipe;
 import com.mcon152.recipeshare.domain.Tag;
 
-import java.util.List;
 
 public class MarkdownRecipeExporter extends AbstractRecipeExporter {
 
@@ -47,7 +46,7 @@ public class MarkdownRecipeExporter extends AbstractRecipeExporter {
         formattedRecipe.append("## Instructions\n");
         String instructions = recipe.getInstructions();
         if (instructions != null) {
-           formattedRecipe.append(instructions.replace(" .\\.", "\n")).append("\n");
+           formattedRecipe.append(instructions).append("\n");
 
         } else {
             formattedRecipe.append("_No instructions provided._\n");

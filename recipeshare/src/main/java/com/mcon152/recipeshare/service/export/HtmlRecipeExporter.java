@@ -43,6 +43,6 @@ public class HtmlRecipeExporter extends AbstractRecipeExporter {
     void formatInstructions(Recipe recipe) {
         formattedRecipe.append("<h4>Instructions:</h4>");
         formattedRecipe.append("<p>").append(recipe.getInstructions()).append("</p>");
-        formattedRecipe.append("</div>");
+        formattedRecipe.append("</div>\n");
     }
 }
