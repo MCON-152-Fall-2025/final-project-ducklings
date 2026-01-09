@@ -2,7 +2,8 @@ package com.mcon152.recipeshare.web;
 
 import com.mcon152.recipeshare.domain.Recipe;
 import com.mcon152.recipeshare.domain.RecipeRegistry;
-import com.mcon152.recipeshare.service.RecipeService;
+import com.mcon152.recipeshare.service.*;
+import com.mcon152.recipeshare.service.export.*;
 import org.slf4j.Logger;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 
 @RestController
@@ -33,7 +35,6 @@ public class RecipeController {
         try {
             Recipe toSave = RecipeRegistry.createFromRequest(recipeRequest);
             Recipe saved = recipeService.addRecipe(toSave);
-
             URI location = ServletUriComponentsBuilder
                     .fromCurrentRequest()           // /api/recipes
                     .path("/{id}")                  // /{id}
@@ -101,7 +102,6 @@ public class RecipeController {
             logger.error("Error updating recipe with ID: {}", id, e);
             return ResponseEntity.internalServerError().build();
         }
-
     }
 
     /**
@@ -120,5 +120,30 @@ public class RecipeController {
             logger.error("Error patching recipe with ID: {}", id, e);
             return ResponseEntity.internalServerError().build();
         }
+    }
+
+
+    /**
+     * Export a recipe by id. 200 OK or 404 Not Found.
+     * /export?format=text|markdown|html
+     */
+    @GetMapping("/{id}/export/{format}")
+    public ResponseEntity<String> exportRecipeById(@PathVariable long id, @PathVariable String format) {
+        logger.info("Received request to export recipe id {} in {}", id, format);
+
+        Optional<Recipe> recipe = recipeService.getRecipeById(id);
+        if (recipe.isEmpty()) {
+            logger.warn("Recipe not found for export - id={}", id);
+            return ResponseEntity.notFound().build();
+        }
+
+        AbstractRecipeExporter exporter = switch (format.toLowerCase()) {
+            case "markdown" -> new MarkdownRecipeExporter();
+            case "html" -> new HtmlRecipeExporter();
+            case "plaintext" -> new PlainTextRecipeExporter();
+            default -> new PlainTextRecipeExporter();
+        };
+
+        return ResponseEntity.ok(exporter.export(recipe.get()));
     }
 }
