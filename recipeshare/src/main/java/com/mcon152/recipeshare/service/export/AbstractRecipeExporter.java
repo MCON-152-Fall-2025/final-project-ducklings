@@ -20,8 +20,4 @@ public abstract class AbstractRecipeExporter {
     abstract void formatIngredients(Recipe recipe);
     abstract void formatInstructions(Recipe recipe);
 
-    // Common methods
-    /*void boilWater() {
-        System.out.println("Boiling water");
-    }*/
 }

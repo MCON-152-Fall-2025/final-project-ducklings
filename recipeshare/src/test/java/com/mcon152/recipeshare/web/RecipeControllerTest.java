@@ -7,6 +7,9 @@ import com.mcon152.recipeshare.domain.DessertRecipe;
 import com.mcon152.recipeshare.domain.Recipe;
 import com.mcon152.recipeshare.domain.VegetarianRecipe;
 import com.mcon152.recipeshare.service.RecipeService;
+import com.mcon152.recipeshare.service.export.HtmlRecipeExporter;
+import com.mcon152.recipeshare.service.export.MarkdownRecipeExporter;
+import com.mcon152.recipeshare.service.export.PlainTextRecipeExporter;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -23,6 +26,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.util.*;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.hasValue;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -468,6 +472,191 @@ class RecipeControllerTest {
 
             verify(recipeService, times(1)).getAllRecipes();
             verifyNoMoreInteractions(recipeService); // will fail if any other calls happened
+        }
+    }
+
+    @Nested
+    class RecipeExporterClassTests {
+
+        private BasicRecipe newRecipe() {
+            return new BasicRecipe(
+                    null,
+                    "Challah",
+                    "Great stuff",
+                    "3 1/8 cups warm water, 7/8 cups sugar, 2 tbsp yeast, 3 tbsp salt, 7/8 cup olive oil, 2 eggs, 9 cups flour",
+                    "1. Dissolve sugar in water 2. Stir in yeast and let floof 3. Mix in salt, oil, and eggs 4. Add in flour slowly, and start kneading when it gets thick 5. Knead a lot 6. Cover and let rise 7. Braid and let rise again 8. Bake at 350 until done",
+                    9
+            );
+        }
+
+        @Test
+        void exportMarkdownBasic() {
+            BasicRecipe recipe = newRecipe();
+            String exported = new MarkdownRecipeExporter().export(recipe);
+            String expectedMd = """
+                    # Challah
+                    ### Great stuff
+                    
+                    ### Servings: 9
+                    
+                    ## Ingredients
+                    - 3 1/8 cups warm water
+                    - 7/8 cups sugar
+                    - 2 tbsp yeast
+                    - 3 tbsp salt
+                    - 7/8 cup olive oil
+                    - 2 eggs
+                    - 9 cups flour
+                    
+                    ## Instructions
+                    1. Dissolve sugar in water 2. Stir in yeast and let floof 3. Mix in salt, oil, and eggs 4. Add in flour slowly, and start kneading when it gets thick 5. Knead a lot 6. Cover and let rise 7. Braid and let rise again 8. Bake at 350 until done
+                    """;
+            assertEquals(expectedMd, exported);
+        }
+
+
+        @Test
+        void exportHtml() {
+            BasicRecipe recipe = newRecipe();
+            String exported = new HtmlRecipeExporter().export(recipe);
+            String expectedHtml = """
+                    <div style="display: inline-block;
+                            padding: 1em;
+                            margin: 2em;
+                            max-width: 40vw;
+                            border: 4px ridge gold;
+                            background-color: floralwhite;
+                            color: saddlebrown; ">
+                    <h2>Challah</h2><h3>Great stuff</h3><h4>Servings: 9</h4><h5>Tags: </h5><h4>Ingredients: </h4><ul><li>3 1/8 cups warm water</li><li>7/8 cups sugar</li><li>2 tbsp yeast</li><li>3 tbsp salt</li><li>7/8 cup olive oil</li><li>2 eggs</li><li>9 cups flour</li></ul><h4>Instructions:</h4><p>1. Dissolve sugar in water 2. Stir in yeast and let floof 3. Mix in salt, oil, and eggs 4. Add in flour slowly, and start kneading when it gets thick 5. Knead a lot 6. Cover and let rise 7. Braid and let rise again 8. Bake at 350 until done</p></div>
+                    """;
+            assertEquals(expectedHtml, exported);
+        }
+
+        @Test
+        void exportPlaintext() {
+            BasicRecipe recipe = newRecipe();
+            String exported = new PlainTextRecipeExporter().export(recipe);
+            String expectedTxt = """
+                    Challah
+                    Great stuff
+                    
+                    Servings: 9
+                    
+                    Ingredients:
+                    - 3 1/8 cups warm water
+                    - 7/8 cups sugar
+                    - 2 tbsp yeast
+                    - 3 tbsp salt
+                    - 7/8 cup olive oil
+                    - 2 eggs
+                    - 9 cups flour
+                    
+                    Instructions:
+                    1. Dissolve sugar in water 2. Stir in yeast and let floof 3. Mix in salt, oil, and eggs 4. Add in flour slowly, and start kneading when it gets thick 5. Knead a lot 6. Cover and let rise 7. Braid and let rise again 8. Bake at 350 until done
+                    """;
+            assertEquals(expectedTxt, exported);
+        }
+    }
+
+    @Nested
+    class ExportRouteTests {
+        private List<Long> recipeIds;
+
+        @BeforeEach
+        void createRecipes() throws Exception {
+            recipeIds = new ArrayList<>();
+            String[] recipes = {
+                    "{\"type\":\"BASIC\",\"title\":\"Pie\",\"description\":\"Apple pie\",\"ingredients\":\"Apples, Flour, Sugar\",\"instructions\":\"Mix and bake\",\"servings\":8}",
+                    "{\"type\":\"BASIC\",\"title\":\"Soup\",\"description\":\"Tomato soup\",\"ingredients\":\"Tomatoes, Water, Salt\",\"instructions\":\"Boil and blend\",\"servings\":8}"
+            };
+
+            Recipe r1 = new BasicRecipe(null, "Pie", "Apple pie", "Apples, Flour, Sugar", "Mix and bake", 8);
+            r1.setId(1L);
+            Recipe r2 = new BasicRecipe(null, "Soup", "Tomato soup", "Tomatoes, Water, Salt", "Boil and blend", 8);
+            r2.setId(2L);
+
+            // Consecutive stubbing: return r1 then r2 for the two POSTs
+            lenient().when(recipeService.addRecipe(any(Recipe.class))).thenReturn(r1, r2);
+
+            for (String json : recipes) {
+                String response = mockMvc.perform(post("/api/recipes")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json))
+                        .andExpect(status().isCreated())
+                        .andReturn().getResponse().getContentAsString();
+                long id = mapper.readTree(response).get("id").asLong();
+                recipeIds.add(id);
+            }
+
+            // Stub GET endpoints
+            lenient().when(recipeService.getRecipeById(1L)).thenReturn(Optional.of(r1));
+            lenient().when(recipeService.getRecipeById(2L)).thenReturn(Optional.of(r2));
+            Mockito.clearInvocations(recipeService);
+        }
+
+        @Test
+        void testExportRecipeDefault() throws Exception {
+            long id = recipeIds.get(0);
+            mockMvc.perform(get("/api/recipes/" + id + "/export/random"))
+                    .andExpect(status().isOk())
+                    .andExpect(content().string("""
+                            Pie
+                            Apple pie
+                            
+                            Servings: 8
+                            
+                            Ingredients:
+                            - Apples
+                            - Flour
+                            - Sugar
+                            
+                            Instructions:
+                            Mix and bake
+                            """));
+            verify(recipeService, times(1)).getRecipeById(1L);
+            verifyNoMoreInteractions(recipeService);
+        }
+
+        @Test
+        void testExportRecipeHTML() throws Exception {
+            long id = recipeIds.get(1);
+            mockMvc.perform(get("/api/recipes/" + id + "/export/html"))
+                    .andExpect(status().isOk())
+                    .andExpect(content().string("""
+                            <div style="display: inline-block;
+                                    padding: 1em;
+                                    margin: 2em;
+                                    max-width: 40vw;
+                                    border: 4px ridge gold;
+                                    background-color: floralwhite;
+                                    color: saddlebrown; ">
+                            <h2>Soup</h2><h3>Tomato soup</h3><h4>Servings: 8</h4><h5>Tags: </h5><h4>Ingredients: </h4><ul><li>Tomatoes</li><li>Water</li><li>Salt</li></ul><h4>Instructions:</h4><p>Boil and blend</p></div>
+                            """));
+            verify(recipeService, times(1)).getRecipeById(2L);
+            verifyNoMoreInteractions(recipeService);
+        }
+
+        @Test
+        void testExportRecipeMarkdown() throws Exception {
+            long id = recipeIds.get(0);
+            mockMvc.perform(get("/api/recipes/" + id + "/export/markdown"))
+                    .andExpect(status().isOk())
+                    .andExpect(content().string("""
+                            # Pie
+                            ### Apple pie
+                
+                            ### Servings: 8
+                
+                            ## Ingredients
+                            - Apples
+                            - Flour
+                            - Sugar
+                
+                            ## Instructions
+                            Mix and bake
+                            """));
+            verify(recipeService, times(1)).getRecipeById(1L);
+            verifyNoMoreInteractions(recipeService);
         }
     }
 }
